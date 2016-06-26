@@ -10,8 +10,11 @@ import static org.apache.airavata.grouper.AiravataGrouperUtil.PERMISSION_WRITE_A
 
 import java.util.Set;
 
+import org.apache.airavata.grouper.AiravataGrouperUtil;
 import org.apache.airavata.grouper.ResourceNotFoundException;
+import org.apache.airavata.grouper.role.RoleServiceImpl;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -22,6 +25,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 
 /**
  * @author vsachdeva
@@ -73,11 +77,16 @@ public class ResourceServiceImpl {
       // set the inheritance if parent attribute def name is not null
       if (parentAttributeDefName != null) {
         parentAttributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(attributeDefName);
-        parentAttributeDefName.store();
       }
       
-      //TODO create two roles. One for Read and one for Write
-      //TODO give permissions to roles created above
+      RoleServiceImpl roleServiceImpl = new RoleServiceImpl();
+      //TODO remove the session being passed
+      Group readRole = roleServiceImpl.createRole(resource.getResourceId()+"_"+AiravataGrouperUtil.PERMISSION_READ_ACTION, grouperSession);
+      Group writeRole = roleServiceImpl.createRole(resource.getResourceId()+"_"+AiravataGrouperUtil.PERMISSION_WRITE_ACTION, grouperSession);
+      
+      readRole.getPermissionRoleDelegate().assignRolePermission(PERMISSION_READ_ACTION, attributeDefName, PermissionAllowed.ALLOWED);
+      writeRole.getPermissionRoleDelegate().assignRolePermission(PERMISSION_WRITE_ACTION, attributeDefName, PermissionAllowed.ALLOWED);
+      writeRole.getRoleInheritanceDelegate().addRoleToInheritFromThis(readRole);
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -113,11 +122,9 @@ public class ResourceServiceImpl {
       resource.setResourceDescription(attributeDefName.getDescription());
       resource.setResourceId(resourceId);
       resource.setResourceName(attributeDefName.getDisplayExtension());
-      Set<String> parentAttributeDefNames = attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNameNamesThatImplyThisImmediate();
+      Set<AttributeDefName> parentAttributeDefNames = attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesThatImplyThisImmediate();
       if (parentAttributeDefNames != null && parentAttributeDefNames.size() > 0) {
-        //TODO fix the parent resource id, it shouldn't have full path
-        //TODO maybe we don't need to append ResourceType to the attribute def name since every request will have resource type.
-        resource.setParentResourceId(parentAttributeDefNames.iterator().next());
+        resource.setParentResourceId(parentAttributeDefNames.iterator().next().getExtension());
       }
     } finally {
       GrouperSession.stopQuietly(grouperSession);
