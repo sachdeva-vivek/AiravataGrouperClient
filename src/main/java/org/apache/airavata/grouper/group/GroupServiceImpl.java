@@ -184,10 +184,12 @@ public class GroupServiceImpl implements GroupService {
     //get all the members of the group
     groupServiceImpl.getAllMembersForTheGroup("airavata parent group id");
     
-    //groupServiceImpl.removeGroupFromGroup("airavata parent group id", "airavata child group id");
+    // remove child from parent
+    groupServiceImpl.removeGroupFromGroup("airavata parent group id", "airavata child group id");
     
     // delete the same group 
-    //groupServiceImpl.deleteGroup("airavata test group id");
+    groupServiceImpl.deleteGroup("airavata child group id");
+    groupServiceImpl.deleteGroup("airavata parent group id");
     
   }
   
