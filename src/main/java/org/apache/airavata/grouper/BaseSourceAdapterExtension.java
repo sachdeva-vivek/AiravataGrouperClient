@@ -46,9 +46,6 @@ public class BaseSourceAdapterExtension extends BaseSourceAdapter {
   @Override
   public void init() throws SourceUnavailableException {
     // TODO Auto-generated method stub
-    
   }
   
-  
-
 }

@@ -18,4 +18,10 @@ public class AiravataGrouperUtil {
   
   public static final String PERMISSIONS_STEM_NAME = ROOT_STEM_NAME +":permissions:";
   
+  public static final String PERMISSIONS_ATTRIBUTE_DEF = PERMISSIONS_STEM_NAME+"airavataAttributeDef";
+  
+  public static final String PERMISSION_READ_ACTION = "read";
+  
+  public static final String PERMISSION_WRITE_ACTION = "write";
+  
 }
