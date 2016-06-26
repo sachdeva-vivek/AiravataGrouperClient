@@ -6,6 +6,8 @@ package org.apache.airavata.grouper.group;
 import static edu.internet2.middleware.grouper.misc.SaveMode.INSERT_OR_UPDATE;
 import static edu.internet2.middleware.subject.provider.SubjectTypeEnum.PERSON;
 import static org.apache.airavata.grouper.AiravataGrouperUtil.GROUPS_STEM_NAME;
+import static org.apache.airavata.grouper.group.GroupMembershipType.DIRECT;
+import static org.apache.airavata.grouper.group.GroupMembershipType.INDIRECT;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,17 +133,17 @@ public class GroupServiceImpl implements GroupService {
       for(Member member: grouperGroup.getImmediateMembers()) {
         GroupMembership groupMembership = new GroupMembership();
         groupMembership.setGroupId(groupId);
-        groupMembership.setGroupMembershipType(GroupMembershipType.DIRECT);
+        groupMembership.setGroupMembershipType(DIRECT);
         groupMembership.setMemberId(member.getSubjectType().equals(PERSON) ? member.getSubjectId() : GrouperUtil.substringAfterLast(member.getName(), ":"));
-        groupMembership.setMemberType(member.getSubjectType().equals(PERSON) ? SubjectType.USER: SubjectType.GROUP);
+        groupMembership.setMemberType(member.getSubjectType().equals(PERSON) ? SubjectType.PERSON: SubjectType.GROUP);
         groupMemberships.add(groupMembership);
       }
       for(Member member: grouperGroup.getNonImmediateMembers()) {
         GroupMembership groupMembership = new GroupMembership();
         groupMembership.setGroupId(groupId);
-        groupMembership.setGroupMembershipType(GroupMembershipType.INDIRECT);
+        groupMembership.setGroupMembershipType(INDIRECT);
         groupMembership.setMemberId(member.getSubjectType().equals(PERSON) ? member.getSubjectId() : GrouperUtil.substringAfterLast(member.getName(), ":"));
-        groupMembership.setMemberType(member.getSubjectType().equals(PERSON) ? SubjectType.USER: SubjectType.GROUP);
+        groupMembership.setMemberType(member.getSubjectType().equals(PERSON) ? SubjectType.PERSON: SubjectType.GROUP);
         groupMemberships.add(groupMembership);
       }
     } finally {

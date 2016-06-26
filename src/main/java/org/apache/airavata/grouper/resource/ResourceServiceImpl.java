@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 public class ResourceServiceImpl {
   
   
+  //TODO: break this method into smaller methods
   public void createResource(Resource resource) throws ResourceNotFoundException {
     
     validateResource(resource);

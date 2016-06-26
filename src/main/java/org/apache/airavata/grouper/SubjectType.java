@@ -10,6 +10,6 @@ package org.apache.airavata.grouper;
  */
 public enum SubjectType {
 
-  USER,
+  PERSON,
   GROUP
 }
