@@ -7,8 +7,8 @@ import static org.apache.airavata.grouper.AiravataGrouperUtil.PERMISSIONS_ATTRIB
 import static org.apache.airavata.grouper.AiravataGrouperUtil.PERMISSIONS_STEM_NAME;
 import static org.apache.airavata.grouper.AiravataGrouperUtil.PERMISSION_READ_ACTION;
 import static org.apache.airavata.grouper.AiravataGrouperUtil.PERMISSION_WRITE_ACTION;
-import static org.apache.airavata.grouper.resource.ResourceType.EXPERIMENT;
-import static org.apache.airavata.grouper.resource.ResourceType.PROJECT;
+
+import java.util.Set;
 
 import org.apache.airavata.grouper.ResourceNotFoundException;
 
@@ -42,7 +42,7 @@ public class ResourceServiceImpl {
       
       // make sure that the parent resource exists in grouper if it is in the request
       if (resource.getParentResourceId() != null) {
-        parentAttributeDefName = AttributeDefNameFinder.findByName(PERMISSIONS_STEM_NAME+resource.getResourceType().getParentResoruceType()+"_"+resource.getParentResourceId(), false);
+        parentAttributeDefName = AttributeDefNameFinder.findByName(PERMISSIONS_STEM_NAME+resource.getParentResourceId(), false);
         if (parentAttributeDefName == null) {
           throw new ResourceNotFoundException(resource.getParentResourceId() +" was not found.");
         }
@@ -64,8 +64,8 @@ public class ResourceServiceImpl {
       AttributeDefNameSave attributeDefNameSave = new AttributeDefNameSave(grouperSession, attributeDef);
       attributeDefNameSave.assignCreateParentStemsIfNotExist(true);
       attributeDefNameSave.assignSaveMode(SaveMode.INSERT_OR_UPDATE);
-      attributeDefNameSave.assignAttributeDefNameNameToEdit(PERMISSIONS_STEM_NAME+resource.getResourceType().toString()+"_"+resource.getResourceId());
-      attributeDefNameSave.assignName(PERMISSIONS_STEM_NAME+resource.getResourceType().toString()+"_"+resource.getResourceId());
+      attributeDefNameSave.assignAttributeDefNameNameToEdit(PERMISSIONS_STEM_NAME+resource.getResourceId());
+      attributeDefNameSave.assignName(PERMISSIONS_STEM_NAME+resource.getResourceId());
       attributeDefNameSave.assignDescription(resource.getResourceDescription());
       attributeDefNameSave.assignDisplayName(resource.getResourceName());
       AttributeDefName attributeDefName = attributeDefNameSave.save();
@@ -76,9 +76,53 @@ public class ResourceServiceImpl {
         parentAttributeDefName.store();
       }
       
+      //TODO create two roles. One for Read and one for Write
+      //TODO give permissions to roles created above
+      
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+  
+  public void deleteResource(String resourceId) throws ResourceNotFoundException {
+    //TODO validate the input
+    GrouperSession grouperSession = null;
+    try {
+      grouperSession = GrouperSession.startRootSession();
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(PERMISSIONS_STEM_NAME+resourceId, false);
+      if (attributeDefName == null) {
+        throw new ResourceNotFoundException(resourceId +" was not found.");
+      }
+      attributeDefName.delete();
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  public Resource getResource(String resourceId) throws ResourceNotFoundException {
+    //TODO validate the input
+    GrouperSession grouperSession = null;
+    Resource resource = null;
+    try {
+      grouperSession = GrouperSession.startRootSession();
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(PERMISSIONS_STEM_NAME+resourceId, false);
+      if (attributeDefName == null) {
+        throw new ResourceNotFoundException(resourceId +" was not found.");
+      }
+      resource = new Resource();
+      resource.setResourceDescription(attributeDefName.getDescription());
+      resource.setResourceId(resourceId);
+      resource.setResourceName(attributeDefName.getDisplayExtension());
+      Set<String> parentAttributeDefNames = attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNameNamesThatImplyThisImmediate();
+      if (parentAttributeDefNames != null && parentAttributeDefNames.size() > 0) {
+        //TODO fix the parent resource id, it shouldn't have full path
+        //TODO maybe we don't need to append ResourceType to the attribute def name since every request will have resource type.
+        resource.setParentResourceId(parentAttributeDefNames.iterator().next());
+      }
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    return resource;
   }
   
   private void validateResource(Resource resource) {
@@ -93,7 +137,6 @@ public class ResourceServiceImpl {
     projectResource.setResourceId("project resource id");
     projectResource.setResourceDescription("project resource description");
     projectResource.setResourceName("project resource name");
-    projectResource.setResourceType(PROJECT);
     resourceService.createResource(projectResource);
     
     // create an Experiment resource
@@ -101,17 +144,22 @@ public class ResourceServiceImpl {
     experimentResource.setResourceId("experiment resource id");
     experimentResource.setResourceDescription("experiment resource description");
     experimentResource.setResourceName("experiment resource name");
-    experimentResource.setResourceType(EXPERIMENT);
     experimentResource.setParentResourceId("project resource id");
     resourceService.createResource(experimentResource);
     
+    //create another experiment resource within the same project resource
     Resource experimentResource1 = new Resource();
     experimentResource1.setResourceId("experiment resource id1");
     experimentResource1.setResourceDescription("experiment resource description1");
     experimentResource1.setResourceName("experiment resource name1");
-    experimentResource1.setResourceType(EXPERIMENT);
     experimentResource1.setParentResourceId("project resource id");
     resourceService.createResource(experimentResource1);
+    
+    // get the experiment resource and it should have parent set to project
+    Resource resource = resourceService.getResource("experiment resource id1");
+    System.out.println(resource);
+    //delete the project resource, it will delete all the child/experiment resources as well
+    //resourceService.deleteResource("project resource id");
   }
 
 }

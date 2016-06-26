@@ -13,8 +13,6 @@ public class Resource {
   
   private String resourceName;
   
-  private ResourceType resourceType;
-  
   private String resourceDescription;
   
   private String parentResourceId;
@@ -51,23 +49,6 @@ public class Resource {
     this.resourceName = resourceName;
   }
 
-  
-  /**
-   * @return the resourceType
-   */
-  public ResourceType getResourceType() {
-    return resourceType;
-  }
-
-  
-  /**
-   * @param resourceType the resourceType to set
-   */
-  public void setResourceType(ResourceType resourceType) {
-    this.resourceType = resourceType;
-  }
-
-
   /**
    * @return the resourceDescription
    */
@@ -98,5 +79,17 @@ public class Resource {
   public void setParentResourceId(String parentResourceId) {
     this.parentResourceId = parentResourceId;
   }
+
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return "Resource [resourceId=" + resourceId + ", resourceName=" + resourceName
+        + ", resourceDescription=" + resourceDescription + ", parentResourceId="
+        + parentResourceId + "]";
+  }
+
   
 }
