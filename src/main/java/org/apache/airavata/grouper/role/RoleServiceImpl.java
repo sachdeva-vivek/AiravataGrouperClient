@@ -9,7 +9,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 
@@ -43,21 +42,25 @@ public class RoleServiceImpl {
     return role;
   }
   
-  public void deleteRole(String roleId) throws GroupNotFoundException {
+  public void deleteRole(String roleId, GrouperSession session) {
     GrouperSession grouperSession = null;
     try {
-      grouperSession = GrouperSession.startRootSession();
-      edu.internet2.middleware.grouper.Group role = GroupFinder.findByName(grouperSession, ROLES_STEM_NAME+roleId, true);
-      role.delete();
+      grouperSession = session != null? session : GrouperSession.startRootSession();
+      edu.internet2.middleware.grouper.Group role = GroupFinder.findByName(grouperSession, ROLES_STEM_NAME+roleId, false);
+      if (role != null) {
+        role.delete();
+      }
     } finally {
-      GrouperSession.stopQuietly(grouperSession);
+      if (session == null) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
     }
   }
   
   public static void main(String[] args) {
     RoleServiceImpl roleServiceImpl = new RoleServiceImpl();
     roleServiceImpl.createRole("test_role", null);
-    roleServiceImpl.deleteRole("test_role");
+    roleServiceImpl.deleteRole("test_role", null);
   }
 
 }

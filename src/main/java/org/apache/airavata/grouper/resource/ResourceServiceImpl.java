@@ -10,7 +10,6 @@ import static org.apache.airavata.grouper.AiravataGrouperUtil.PERMISSION_WRITE_A
 
 import java.util.Set;
 
-import org.apache.airavata.grouper.AiravataGrouperUtil;
 import org.apache.airavata.grouper.ResourceNotFoundException;
 import org.apache.airavata.grouper.role.RoleServiceImpl;
 
@@ -79,10 +78,10 @@ public class ResourceServiceImpl {
         parentAttributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(attributeDefName);
       }
       
-      RoleServiceImpl roleServiceImpl = new RoleServiceImpl();
+      RoleServiceImpl roleService = new RoleServiceImpl();
       //TODO remove the session being passed
-      Group readRole = roleServiceImpl.createRole(resource.getResourceId()+"_"+AiravataGrouperUtil.PERMISSION_READ_ACTION, grouperSession);
-      Group writeRole = roleServiceImpl.createRole(resource.getResourceId()+"_"+AiravataGrouperUtil.PERMISSION_WRITE_ACTION, grouperSession);
+      Group readRole = roleService.createRole(resource.getResourceId()+"_"+PERMISSION_READ_ACTION, grouperSession);
+      Group writeRole = roleService.createRole(resource.getResourceId()+"_"+PERMISSION_WRITE_ACTION, grouperSession);
       
       readRole.getPermissionRoleDelegate().assignRolePermission(PERMISSION_READ_ACTION, attributeDefName, PermissionAllowed.ALLOWED);
       writeRole.getPermissionRoleDelegate().assignRolePermission(PERMISSION_WRITE_ACTION, attributeDefName, PermissionAllowed.ALLOWED);
@@ -102,7 +101,18 @@ public class ResourceServiceImpl {
       if (attributeDefName == null) {
         throw new ResourceNotFoundException(resourceId +" was not found.");
       }
+      RoleServiceImpl roleService = new RoleServiceImpl();
+      // delete all the children resources and roles
+      for (AttributeDefName childAttributeDefName: attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesImpliedByThis()) {
+        childAttributeDefName.delete();
+        // don't change the order since write inherits read
+        roleService.deleteRole(childAttributeDefName.getExtension()+"_"+PERMISSION_WRITE_ACTION, grouperSession);
+        roleService.deleteRole(childAttributeDefName.getExtension()+"_"+PERMISSION_READ_ACTION, grouperSession);
+      }
       attributeDefName.delete();
+      // don't change the order since write inherits read
+      roleService.deleteRole(resourceId+"_"+PERMISSION_WRITE_ACTION, grouperSession);
+      roleService.deleteRole(resourceId+"_"+PERMISSION_READ_ACTION, grouperSession);
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -162,11 +172,19 @@ public class ResourceServiceImpl {
     experimentResource1.setParentResourceId("project resource id");
     resourceService.createResource(experimentResource1);
     
+    // create a data file resource
+    Resource dataResource = new Resource();
+    dataResource.setResourceId("data resource id");
+    dataResource.setResourceDescription("data resource description");
+    dataResource.setResourceName("data resource name");
+    dataResource.setParentResourceId("experiment resource id1");
+    resourceService.createResource(dataResource);
+    
     // get the experiment resource and it should have parent set to project
     Resource resource = resourceService.getResource("experiment resource id1");
     System.out.println(resource);
-    //delete the project resource, it will delete all the child/experiment resources as well
-    //resourceService.deleteResource("project resource id");
+    //delete the project resource, it will delete all the children/experiment resources as well
+    resourceService.deleteResource("project resource id");
   }
 
 }
