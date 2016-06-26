@@ -7,7 +7,7 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>GrouperTestClient</name>
+  <name>AiravataGrouperClient</name>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -45,7 +45,6 @@
 	    <version>1.7</version>
 	</dependency>
 
-	
 	 <dependency>
 	    <groupId>org.hibernate</groupId>
 	    <artifactId>hibernate-ehcache</artifactId>
