@@ -6,8 +6,6 @@ package org.apache.airavata.grouper.group;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.airavata.grouper.User;
-
 /**
  * @author vsachdeva
  *
@@ -20,7 +18,7 @@ public class Group {
   
   private String description;
   
-  private List<User> users = new ArrayList<User>();
+  private List<String> users = new ArrayList<String>();
   
   /**
    * @return the id
@@ -73,17 +71,17 @@ public class Group {
   /**
    * @return the users
    */
-  public List<User> getUsers() {
+  public List<String> getUsers() {
     return users;
   }
 
-  
   /**
    * @param users the users to set
    */
-  public void setUsers(List<User> users) {
+  public void setUsers(List<String> users) {
     this.users = users;
   }
+
 
   /**
    * @see java.lang.Object#toString()

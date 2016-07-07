@@ -749,5 +749,127 @@ where
   </source>
 -->
 
+	<source adapterClass="edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter2">
+        <id>AIRAVATA_SUBJECT_SOURCE</id>
+        <name>AIRAVATA_SUBJECT_SOURCE</name>
+         <type>person</type> 
+         <init-param>
+           <param-name>jdbcConnectionProvider</param-name>
+           <param-value>edu.internet2.middleware.subject.provider.C3p0JdbcConnectionProvider</param-value>
+         </init-param>
+         
+         <init-param>
+            <param-name>dbDriver</param-name>
+            <param-value>com.mysql.jdbc.Driver</param-value>
+         </init-param>
+         
+         <init-param>
+            <param-name>dbUrl</param-name>
+            <param-value>jdbc:mysql://localhost:3306/grouper_source</param-value>
+        </init-param>
+        
+        <init-param>
+            <param-name>dbUser</param-name>
+            <param-value>root</param-value>
+        </init-param>
+        
+        <init-param>
+            <param-name>dbPwd</param-name>
+            <param-value></param-value>
+        </init-param>
+    
+         <init-param>
+           <param-name>maxResults</param-name>
+           <param-value>1000</param-value>
+         </init-param>
+    
+          <init-param>
+           <param-name>dbTableOrView</param-name>
+           <param-value>airavata_users</param-value>
+         </init-param>
+         
+          <init-param>
+           <param-name>subjectIdCol</param-name>
+           <param-value>AIRAVATA_INTERNAL_USER_ID</param-value>
+         </init-param>
+         <init-param>
+           <param-name>nameCol</param-name>
+           <param-value>AIRAVATA_INTERNAL_USER_ID</param-value>
+         </init-param>
+         <init-param>
+           <param-name>descriptionCol</param-name>
+           <param-value>AIRAVATA_INTERNAL_USER_ID</param-value>
+         </init-param>
+         
+         <init-param>
+           <param-name>lowerSearchCol</param-name>
+           <param-value>AIRAVATA_INTERNAL_USER_ID</param-value>
+         </init-param>
+         
+         <init-param>
+           <param-name>defaultSortCol</param-name>
+           <param-value>AIRAVATA_INTERNAL_USER_ID</param-value>
+         </init-param>
+        
+		<!--  <init-param>
+           <param-name>subjectIdentifierCol0</param-name>
+           <param-value>subject_identifier</param-value>
+         </init-param> -->
+        
+         <!-- <init-param>
+           <param-name>subjectAttributeCol0</param-name>
+           <param-value>description</param-value>
+         </init-param>
+         <init-param>
+           <param-name>subjectAttributeName0</param-name>
+           <param-value>description</param-value>
+         </init-param> -->
+        
+         <init-param>
+           <param-name>sortAttribute0</param-name>
+           <param-value>AIRAVATA_INTERNAL_USER_ID</param-value>
+         </init-param>
+          <init-param>
+           <param-name>searchAttribute0</param-name>
+           <param-value>AIRAVATA_INTERNAL_USER_ID</param-value>
+         </init-param>
+         <!-- <internal-attribute>searchAttribute0</internal-attribute> -->
+         
+         <!-- <init-param>
+           <param-name>statusDatastoreFieldName</param-name>
+           <param-value>status</param-value>
+         </init-param>
+         
+         <init-param>
+           <param-name>statusLabel</param-name>
+           <param-value>status</param-value>
+         </init-param> -->
+        
+         
+         <!-- <init-param>
+           <param-name>statusesFromUser</param-name>
+           <param-value>Active, Inactive, Pending, All</param-value>
+         </init-param>
+         
+         <init-param>
+           <param-name>statusAllFromUser</param-name>
+           <param-value>All</param-value>
+         </init-param>
+         
+         <init-param>
+           <param-name>statusSearchDefault</param-name>
+           <param-value>status=active</param-value>
+         </init-param>
+         
+         <init-param>
+           <param-name>statusTranslateUser0</param-name>
+           <param-value>active</param-value>
+         </init-param>
+         <init-param>
+           <param-name>statusTranslateDatastore0</param-name>
+           <param-value>A</param-value>
+         </init-param> -->
+       </source> 
+
 </sources>
 

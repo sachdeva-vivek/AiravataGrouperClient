@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.apache.airavata.grouper;
+package org.apache.airavata.grouper.resource;
 
 
 /**

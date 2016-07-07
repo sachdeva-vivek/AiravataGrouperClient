@@ -84,7 +84,5 @@ public class GroupMembership {
         + ", memberType=" + memberType + ", groupMembershipType=" + groupMembershipType
         + "]";
   }
-  
-  
-  
+    
 }

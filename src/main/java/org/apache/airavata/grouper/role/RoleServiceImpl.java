@@ -3,14 +3,20 @@
  */
 package org.apache.airavata.grouper.role;
 
+import static org.apache.airavata.grouper.AiravataGrouperUtil.COLON;
 import static org.apache.airavata.grouper.AiravataGrouperUtil.ROLES_STEM_NAME;
+import static org.apache.airavata.grouper.AiravataGrouperUtil.SUBJECT_SOURCE;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * @author vsachdeva
@@ -27,8 +33,8 @@ public class RoleServiceImpl {
       grouperSession = session != null? session : GrouperSession.startRootSession();
       GroupSave groupSave = new GroupSave(grouperSession);
       groupSave.assignTypeOfGroup(TypeOfGroup.role);
-      groupSave.assignGroupNameToEdit(ROLES_STEM_NAME+roleId);
-      groupSave.assignName(ROLES_STEM_NAME+roleId);
+      groupSave.assignGroupNameToEdit(ROLES_STEM_NAME+COLON+roleId);
+      groupSave.assignName(ROLES_STEM_NAME+COLON+roleId);
       groupSave.assignDisplayExtension(roleId);
       groupSave.assignDescription(roleId);
       groupSave.assignSaveMode(SaveMode.INSERT_OR_UPDATE);
@@ -46,7 +52,7 @@ public class RoleServiceImpl {
     GrouperSession grouperSession = null;
     try {
       grouperSession = session != null? session : GrouperSession.startRootSession();
-      edu.internet2.middleware.grouper.Group role = GroupFinder.findByName(grouperSession, ROLES_STEM_NAME+roleId, false);
+      edu.internet2.middleware.grouper.Group role = GroupFinder.findByName(grouperSession, ROLES_STEM_NAME+COLON+roleId, false);
       if (role != null) {
         role.delete();
       }
@@ -57,10 +63,56 @@ public class RoleServiceImpl {
     }
   }
   
+  public void assignRoleToUser(String userId, String roleId, GrouperSession session) throws GroupNotFoundException, SubjectNotFoundException {
+    
+    GrouperSession grouperSession = null;
+    try {
+      grouperSession = session != null? session : GrouperSession.startRootSession();
+      edu.internet2.middleware.grouper.Group role = GroupFinder.findByName(grouperSession, ROLES_STEM_NAME+COLON+roleId, false);
+      if (role == null) {
+        throw new GroupNotFoundException("Role "+roleId+" was not found.");
+      }
+      Subject subject = SubjectFinder.findByIdAndSource(userId, SUBJECT_SOURCE, false);
+      if (subject == null) {
+        throw new SubjectNotFoundException("userId "+userId+" was not found.");
+      }
+      role.addMember(subject, false);
+    } finally {
+      if (session == null) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
+    
+  }
+  
+  public void removeRoleFromUser(String userId, String roleId, GrouperSession session) throws GroupNotFoundException, SubjectNotFoundException {
+    GrouperSession grouperSession = null;
+    try {
+      grouperSession = session != null? session : GrouperSession.startRootSession();
+      edu.internet2.middleware.grouper.Group role = GroupFinder.findByName(grouperSession, ROLES_STEM_NAME+COLON+roleId, false);
+      if (role == null) {
+        throw new GroupNotFoundException("Role "+roleId+" was not found.");
+      }
+      Subject subject = SubjectFinder.findByIdAndSource(userId, SUBJECT_SOURCE, false);
+      if (subject == null) {
+        throw new SubjectNotFoundException("userId "+userId+" was not found.");
+      }
+      role.deleteMember(subject, false);
+    } finally {
+      if (session == null) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
+  }
+  
   public static void main(String[] args) {
     RoleServiceImpl roleServiceImpl = new RoleServiceImpl();
+    
     roleServiceImpl.createRole("test_role", null);
-    roleServiceImpl.deleteRole("test_role", null);
+    
+    roleServiceImpl.assignRoleToUser("test.subject.3", "test_role", null);
+    
+    //roleServiceImpl.deleteRole("test_role", null);
   }
 
 }
